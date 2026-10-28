@@ -1,16 +1,15 @@
 import express from 'express';
+import estudiantesRouter from './routes/estudiantes';
 
 const app = express();
 const PORT = 3000;
 
-// Endpoint  GET
-app.get('/api/status', (req, res) => {
-  res.json({
-    status: "Servidor en línea",
-    version: "1.0.0"
-  });
-});
+app.use(express.json());
 
+// Montar el router modular bajo el prefijo /api/estudiantes
+app.use('/api/estudiantes', estudiantesRouter);
+
+// Activar el servidor
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
