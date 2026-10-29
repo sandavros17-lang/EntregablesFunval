@@ -1,9 +1,23 @@
 import express from 'express';
+import swaggerUi from 'swagger-ui-express';
+import swaggerOutput from './swagger_output.json';
+
+// 1. Importa tus rutas de estudiantes
+import estudiantesRouter from './routes/estudiantes';
 
 const app = express();
 const PORT = 3000;
 
-// Endpoint  GET
+// Middleware para interpretar JSON en las peticiones POST y PUT
+app.use(express.json());
+
+// Configuración de la documentación de Swagger
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerOutput));
+
+// 2. MONTA LAS RUTAS AQUÍ (Con esto swagger-autogen las detectará)
+app.use('/api/estudiantes', estudiantesRouter);
+
+// Endpoint GET de prueba
 app.get('/api/status', (req, res) => {
   res.json({
     status: "Servidor en línea",
