@@ -1,30 +1,38 @@
 import { Router, Request, Response } from 'express';
 
-// Definimos la interfaz aquí o la importas de tu carpeta interface
 interface Estudiante {
   id: number;
   nombre: string;
+  name?: string;
   email: string;
   bootcamp: string;
 }
 
-// Simulamos el arreglo (puedes importarlo de tu archivo de datos si ya lo tienes separado)
 const estudiantes: Estudiante[] = [];
-
 const router = Router();
 
-// GET: Muestra a todos los estudiantes o filtra por query string (?bootcamp=...)
+// GET: Muestra a todos los estudiantes o filtra por query string
 router.get('/', (req: Request, res: Response) => {
   const { bootcamp } = req.query;
 
+  let lista = estudiantes;
   if (bootcamp) {
-    const filtrados = estudiantes.filter(
-      (e) => e.bootcamp.toLowerCase() === String(bootcamp).toLowerCase()
+    lista = estudiantes.filter(
+      (e) => (e.bootcamp || '').toLowerCase() === String(bootcamp).toLowerCase()
     );
-    return res.json(filtrados);
   }
 
-  res.json(estudiantes);
+  // Mapeamos para garantizar que el frontend de Netlify encuentre tanto 'nombre' como 'name'
+  const listaMapeada = lista.map(e => {
+    const valorNombre = e.nombre || e.name || 'Sin nombre';
+    return {
+      ...e,
+      nombre: valorNombre,
+      name: valorNombre
+    };
+  });
+
+  return res.json(listaMapeada);
 });
 
 // GET: Obtener un estudiante por su ID
@@ -36,12 +44,18 @@ router.get('/:id', (req: Request, res: Response) => {
     return res.status(404).json({ error: 'El estudiante no se encuentra' });
   }
 
-  res.json(estudiante);
+  const valorNombre = estudiante.nombre || estudiante.name || 'Sin nombre';
+  res.json({
+    ...estudiante,
+    nombre: valorNombre,
+    name: valorNombre
+  });
 });
 
 // POST: Crear un nuevo estudiante
 router.post('/', (req: Request, res: Response) => {
-  const { nombre, email, bootcamp } = req.body;
+  const { nombre, name, email, bootcamp } = req.body;
+  const nombreFinal = name || nombre || 'Sin nombre';
 
   if (!email) {
     return res.status(400).json({ error: 'Por favor ingrese email, es obligatorio.' });
@@ -49,7 +63,8 @@ router.post('/', (req: Request, res: Response) => {
 
   const nuevoEstudiante: Estudiante = {
     id: estudiantes.length + 1,
-    nombre: nombre || 'Sin nombre',
+    nombre: nombreFinal,
+    name: nombreFinal, // Guardamos ambos para compatibilidad total
     email,
     bootcamp: bootcamp || 'Desarrollo Web'
   };
@@ -70,9 +85,13 @@ router.put('/:id', (req: Request, res: Response) => {
     return res.status(404).json({ error: 'El estudiante no se encuentra' });
   }
 
-  const { nombre, email, bootcamp } = req.body;
+  const { nombre, name, email, bootcamp } = req.body;
+  const nuevoNombre = name || nombre;
 
-  if (nombre) estudiante.nombre = nombre;
+  if (nuevoNombre) {
+    estudiante.nombre = nuevoNombre;
+    estudiante.name = nuevoNombre;
+  }
   if (email) estudiante.email = email;
   if (bootcamp) estudiante.bootcamp = bootcamp;
 
@@ -98,4 +117,4 @@ router.delete('/:id', (req: Request, res: Response) => {
   });
 });
 
-export default router;
+export = router;

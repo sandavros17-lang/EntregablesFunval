@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "dev": "tsx --env-file=.env --watch src/index.ts",
     "swagger": "ts-node src/swagger.ts"
   },
   "keywords": [],
@@ -12,6 +12,7 @@
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^26.6.5",
     "@types/swagger-ui-express": "^4.1.8",
@@ -21,6 +22,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "cors": "^2.8.6",
     "express": "^5.3.0",
     "swagger-ui-express": "^5.0.1"
   }
